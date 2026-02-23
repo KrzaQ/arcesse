@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import html2text as _html2text
+
 from arcesse.backends.base import Backend, Solution
 from arcesse.cookies import to_json, to_netscape_jar
 
@@ -35,3 +37,19 @@ def get_cookies(
     if fmt == "json":
         return to_json(solution.cookies)
     return to_netscape_jar(solution.cookies)
+
+
+def read_html(
+    backend: Backend,
+    url: str,
+    *,
+    session: str | None = None,
+    timeout: int = 60000,
+) -> str:
+    """Fetch a URL and convert the HTML body to readable markdown text."""
+    solution = backend.get(url, session=session, timeout=timeout)
+    h = _html2text.HTML2Text()
+    h.ignore_links = False
+    h.ignore_images = True
+    h.body_width = 0  # don't wrap lines
+    return h.handle(solution.body)

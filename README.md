@@ -11,8 +11,11 @@ docker compose up -d
 # Install the CLI
 uv pip install -e .
 
-# Fetch a page
+# Fetch a page (raw HTML)
 arcesse fetch https://protected-site.com
+
+# Read a page (clean text/markdown)
+arcesse read https://protected-site.com
 
 # Get cookies, then reuse with curl
 arcesse cookies https://protected-site.com > cookies.txt
@@ -41,6 +44,22 @@ arcesse fetch -o page.html https://example.com
 | `--timeout` | `-t` | Timeout in milliseconds |
 | `--backend-url` | `-b` | Backend service URL |
 | `--session` | `-s` | Session ID (persistent browser instance) |
+
+### `arcesse read`
+
+Fetch a URL and convert to readable markdown text (via html2text).
+
+```bash
+arcesse read https://example.com
+arcesse read -o page.md https://example.com
+```
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--output` | `-o` | Write to file instead of stdout |
+| `--timeout` | `-t` | Timeout in milliseconds |
+| `--backend-url` | `-b` | Backend service URL |
+| `--session` | `-s` | Session ID |
 
 ### `arcesse cookies`
 

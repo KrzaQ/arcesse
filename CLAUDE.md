@@ -8,8 +8,8 @@ Split into a lightweight Python CLI and a dockerized browser backend (currently 
 
 ```
 src/arcesse/
-  cli.py              # Click CLI entry point (arcesse fetch, arcesse cookies)
-  client.py            # Orchestration layer between CLI and backends
+  cli.py              # Click CLI entry point (arcesse fetch, arcesse read, arcesse cookies)
+  client.py            # Orchestration layer between CLI and backends (fetch, read_html, get_cookies)
   config.py            # Config resolution: CLI flag > env var > default
   cookies.py           # Cookie formatting (Netscape jar for curl, JSON)
   errors.py            # Exception hierarchy (ArcesseError base)
@@ -42,6 +42,7 @@ uv run arcesse --help         # Run CLI
 
 ```bash
 uv run arcesse fetch https://example.com
+uv run arcesse read https://example.com
 uv run arcesse cookies https://nowsecure.nl
 uv run arcesse cookies -f json https://example.com
 ```

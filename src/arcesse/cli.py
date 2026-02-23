@@ -3,7 +3,7 @@ from __future__ import annotations
 import click
 
 from arcesse.backends.flaresolverr import FlareSolverrBackend
-from arcesse.client import fetch, get_cookies
+from arcesse.client import fetch, get_cookies, read_html
 from arcesse.config import resolve_backend_url, resolve_timeout
 from arcesse.errors import ArcesseError
 
@@ -134,3 +134,48 @@ def cookies_cmd(
         raise SystemExit(1)
 
     click.echo(cookie_text)
+
+
+@main.command("read")
+@click.argument("url")
+@click.option(
+    "--output",
+    "-o",
+    default=None,
+    type=click.Path(),
+    help="Write response to file instead of stdout.",
+)
+@click.option("--timeout", "-t", default=None, type=int, help="Timeout in ms.")
+@click.option("--backend-url", "-b", default=None, help="Backend service URL.")
+@click.option("--session", "-s", default=None, help="Session ID for the backend.")
+def read_cmd(
+    url: str,
+    output: str | None,
+    timeout: int | None,
+    backend_url: str | None,
+    session: str | None,
+) -> None:
+    """Fetch a URL and print as readable text."""
+    resolved_url = resolve_backend_url(backend_url)
+    resolved_timeout = resolve_timeout(timeout)
+    backend = _make_backend(resolved_url)
+
+    _log(f"arcesse: reading {url} via {resolved_url}")
+
+    try:
+        text = read_html(
+            backend,
+            url,
+            session=session,
+            timeout=resolved_timeout,
+        )
+    except ArcesseError as exc:
+        _log(f"arcesse: error: {exc}")
+        raise SystemExit(1)
+
+    if output:
+        with open(output, "w") as f:
+            f.write(text)
+        _log(f"arcesse: wrote to {output}")
+    else:
+        click.echo(text)
