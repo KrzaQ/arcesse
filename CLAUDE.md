@@ -4,7 +4,9 @@ CLI tool + dockerized backend for fetching websites behind Cloudflare protection
 
 ## Architecture
 
-Split into a lightweight Python CLI and a dockerized browser backend (currently FlareSolverr).
+Split into a lightweight Python CLI and a dockerized browser backend.
+
+Default backend is a custom Camoufox-based service (`service/`) that speaks the FlareSolverr v3 API. FlareSolverr itself is available as an optional profile.
 
 ```
 src/arcesse/
@@ -15,7 +17,12 @@ src/arcesse/
   errors.py            # Exception hierarchy (ArcesseError base)
   backends/
     base.py            # Backend Protocol + Solution/Cookie dataclasses
-    flaresolverr.py    # FlareSolverr v3 implementation
+    flaresolverr.py    # FlareSolverr v3 implementation (also used by Camoufox service)
+
+service/
+  app.py              # FastAPI service: Camoufox browser with FlareSolverr-compatible API
+  Dockerfile          # Python + Camoufox + browser deps
+  pyproject.toml      # Service dependencies
 ```
 
 ## Key Design Decisions
@@ -24,13 +31,19 @@ src/arcesse/
 - **Sync only**: httpx in sync mode. One request per invocation, no need for async.
 - **stdout/stderr split**: Content goes to stdout, status/errors to stderr. Safe for piping.
 - **Config precedence**: CLI flag > `ARCESSE_BACKEND_URL` / `ARCESSE_TIMEOUT` env vars > defaults (`http://localhost:8191`, 60000ms).
+- **Camoufox service** (`service/app.py`): FlareSolverr-compatible API over Camoufox. Key anti-detection: WebGL spoofing via real device fingerprints (`block_webgl=False`), origin warm-up navigation (produces `Referer` + `Sec-Fetch-Site: same-origin`), `humanize=True`, `geoip=True`, `ff_version=147`.
 
 ## Development
 
 ```bash
-docker compose up -d          # Start FlareSolverr backend
+docker compose up -d          # Start Camoufox backend (default)
 uv sync                       # Install deps
 uv run arcesse --help         # Run CLI
+
+# Alternative backends (optional profiles):
+docker compose --profile flaresolverr up -d   # port 8192
+docker compose --profile byparr up -d         # port 8193
+arcesse --backend-url http://localhost:8192 fetch https://example.com
 ```
 
 ## Adding a New Backend

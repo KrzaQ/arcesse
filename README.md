@@ -9,7 +9,7 @@ Fetch websites behind Cloudflare protection. A lightweight Python CLI that talks
 docker compose up -d
 
 # Install the CLI
-uv pip install -e .
+make install  # or: uv tool install --force -e .
 
 # Fetch a page (raw HTML)
 arcesse fetch https://protected-site.com
@@ -91,13 +91,20 @@ CLI flags override env vars, which override defaults.
 
 ## Backend
 
-arcesse uses [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) as its browser backend. The included `docker-compose.yml` runs it on port 8191:
+The default backend is a custom [Camoufox](https://camoufox.com/)-based service (`service/`) with WebGL spoofing, browser fingerprint randomization, and origin warm-up to bypass bot detection. It speaks the FlareSolverr v3 API.
+
+[FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) and [Byparr](https://github.com/ThePhaseless/Byparr) are available as optional profiles:
 
 ```bash
-docker compose up -d    # start
-docker compose down     # stop
-docker compose logs -f  # view logs
+docker compose up -d                          # Camoufox (default, port 8191)
+docker compose --profile flaresolverr up -d   # FlareSolverr (port 8192)
+docker compose --profile byparr up -d         # Byparr (port 8193)
+
+# Use an alternative backend
+arcesse --backend-url http://localhost:8192 fetch https://example.com
 ```
+
+Ports are configurable via `.env` or environment variables: `CAMOUFOX_PORT`, `FLARESOLVERR_PORT`, `BYPARR_PORT`.
 
 The backend architecture is pluggable — see `src/arcesse/backends/base.py` for the protocol that backends implement.
 

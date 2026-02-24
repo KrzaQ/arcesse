@@ -1,10 +1,31 @@
 services:
+  camoufox:
+    build: ./service
+    container_name: arcesse-camoufox
+    restart: unless-stopped
+    shm_size: 1g
+    ports:
+      - "${CAMOUFOX_PORT:-8191}:8191"
+    environment:
+      - LOG_LEVEL=info
+
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: arcesse-flaresolverr
     restart: unless-stopped
     ports:
-      - "8191:8191"
+      - "${FLARESOLVERR_PORT:-8192}:8191"
+    profiles: ["flaresolverr"]
     environment:
       - LOG_LEVEL=info
       - TZ=UTC
+
+  byparr:
+    image: ghcr.io/thephaseless/byparr:latest
+    container_name: arcesse-byparr
+    restart: unless-stopped
+    ports:
+      - "${BYPARR_PORT:-8193}:8191"
+    profiles: ["byparr"]
+    environment:
+      - LOG_LEVEL=INFO

@@ -1,0 +1,9 @@
+[project]
+name = "arcesse-service"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "camoufox[geoip]",
+    "fastapi",
+    "uvicorn[standard]",
+]
