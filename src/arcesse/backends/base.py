@@ -27,6 +27,8 @@ class Solution:
     body: str
     cookies: list[Cookie]
     user_agent: str
+    is_download: bool = False
+    filename: str = ""
 
 
 class Backend(Protocol):

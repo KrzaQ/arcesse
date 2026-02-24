@@ -99,4 +99,6 @@ class FlareSolverrBackend:
             body=sol["response"],
             cookies=cookies,
             user_agent=sol.get("userAgent", ""),
+            is_download=sol.get("isDownload", False),
+            filename=sol.get("filename", ""),
         )

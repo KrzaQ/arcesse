@@ -48,6 +48,8 @@ def read_html(
 ) -> str:
     """Fetch a URL and convert the HTML body to readable markdown text."""
     solution = backend.get(url, session=session, timeout=timeout)
+    if solution.is_download:
+        return f"[Download: {solution.filename or 'unknown file'}]\n"
     h = _html2text.HTML2Text()
     h.ignore_links = False
     h.ignore_images = True

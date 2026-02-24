@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+
 import click
 
 from arcesse.backends.flaresolverr import FlareSolverrBackend
@@ -84,14 +86,30 @@ def fetch_cmd(
         _log(f"arcesse: error: {exc}")
         raise SystemExit(1)
 
-    _log(f"arcesse: status {solution.status}, {len(solution.body)} bytes")
-
-    if output:
-        with open(output, "w") as f:
-            f.write(solution.body)
-        _log(f"arcesse: wrote to {output}")
+    if solution.is_download:
+        raw_bytes = base64.b64decode(solution.body)
+        _log(
+            f"arcesse: download detected, {len(raw_bytes)} bytes"
+            + (f", filename: {solution.filename}" if solution.filename else "")
+        )
+        if not output and solution.filename:
+            output = solution.filename
+        if not output:
+            _log(
+                "arcesse: error: download has no suggested filename; use -o to specify output path"
+            )
+            raise SystemExit(1)
+        with open(output, "wb") as f:
+            f.write(raw_bytes)
+        _log(f"arcesse: wrote {len(raw_bytes)} bytes to {output}")
     else:
-        click.echo(solution.body)
+        _log(f"arcesse: status {solution.status}, {len(solution.body)} bytes")
+        if output:
+            with open(output, "w") as f:
+                f.write(solution.body)
+            _log(f"arcesse: wrote to {output}")
+        else:
+            click.echo(solution.body)
 
 
 @main.command("cookies")

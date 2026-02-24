@@ -33,6 +33,10 @@ arcesse fetch https://example.com
 arcesse fetch -X POST -d "key=value" https://example.com/api
 arcesse fetch -H "Accept: application/json" https://example.com
 arcesse fetch -o page.html https://example.com
+
+# File downloads are auto-detected — saves with the suggested filename
+arcesse fetch https://example.com/files/report.pdf
+arcesse fetch -o report.pdf https://example.com/files/report.pdf
 ```
 
 | Flag | Short | Description |
